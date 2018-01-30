@@ -1,7 +1,7 @@
 """Utility file to seed ratings database from MovieLens data in seed_data/"""
 
 from sqlalchemy import func
-from model import User
+from model import User, Movie, Rating
 # from model import Rating
 # from model import Movie
 
@@ -37,6 +37,31 @@ def load_users():
 def load_movies():
     """Load movies from u.item into database."""
 
+    # 1|Toy Story (1995)|01-Jan-1995||http://us.imdb.com/M/title-exact?Toy%20Story%20(1995)
+
+    print "Movies"
+
+    # Delete all rows in table, so if we need to run this a second time,
+    # we won't be trying to add duplicate users
+    Movie.query.delete()
+
+    for row in open('seed_data/u.item'):
+        row = row.rstrip().split('|')
+
+        movie_id = row[0]
+        title = row[1]
+        release_date = row[2]
+        imdb_url = row[4]
+
+        movie = Movie(movie_id=movie_id,
+                      title=title,
+                      release_date=release_date,
+                      imdb_url=imdb_url)
+
+        db.session.add(movie)
+
+    db.session.commit()
+
 
 def load_ratings():
     """Load ratings from u.data into database."""
@@ -64,5 +89,5 @@ if __name__ == "__main__":
     # Import different types of data
     load_users()
     load_movies()
-    load_ratings()
-    set_val_user_id()
+    # load_ratings()
+    # set_val_user_id()
