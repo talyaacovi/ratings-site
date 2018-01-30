@@ -7,6 +7,7 @@ from model import User, Movie, Rating
 
 from model import connect_to_db, db
 from server import app
+import datetime
 
 
 def load_users():
@@ -49,8 +50,8 @@ def load_movies():
         row = row.rstrip().split('|')
 
         movie_id = row[0]
-        title = row[1]
-        release_date = row[2]
+        title = ' '.join(row[1].split()[:-1])
+        release_date = datetime.datetime.strptime(row[2], '%d-%b-%Y')
         imdb_url = row[4]
 
         movie = Movie(movie_id=movie_id,
@@ -65,6 +66,25 @@ def load_movies():
 
 def load_ratings():
     """Load ratings from u.data into database."""
+
+    print "Ratings"
+
+    # Delete all rows in table, so if we need to run this a second time,
+    # we won't be trying to add duplicate users
+    Rating.query.delete()
+
+    for row in open('seed_data/u.data'):
+        row = row.rstrip()
+
+        user_id, movie_id, rating, rating_id = row.split()
+
+        rating = Rating(user_id=user_id,
+                        movie_id=movie_id,
+                        rating=rating)
+
+        db.session.add(rating)
+
+    db.session.commit()
 
 
 def set_val_user_id():
@@ -89,5 +109,5 @@ if __name__ == "__main__":
     # Import different types of data
     load_users()
     load_movies()
-    # load_ratings()
-    # set_val_user_id()
+    load_ratings()
+    set_val_user_id()
