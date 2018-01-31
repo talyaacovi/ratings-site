@@ -41,6 +41,11 @@ class Movie(db.Model):
     release_date = db.Column(db.DateTime)
     imdb_url = db.Column(db.String(256))
 
+    def __repr__(self):
+        """Provide helpful representation of movie when printed."""
+
+        return "<Movie id={} title={}>".format(self.movie_id, self.title)
+
 
 class Rating(db.Model):
     """Movie ratings by user."""
@@ -54,6 +59,20 @@ class Rating(db.Model):
                         nullable=False)
     rating = db.Column(db.Integer, nullable=False)
 
+    user = db.relationship('User',
+                            backref=db.backref('ratings',
+                                                order_by=rating_id))
+
+    movie = db.relationship('Movie',
+                            backref=db.backref('ratings',
+                                                order_by=rating_id))
+
+
+    def __repr__(self):
+        """Provide helpful representation of rating when printed."""
+
+        return "<Rating id={} score={}>".format(self.rating_id, self.rating)
+
 
 
 
@@ -66,6 +85,7 @@ def connect_to_db(app):
     # Configure to use our PstgreSQL database
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///ratings'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_ECHO'] = True
     db.app = app
     db.init_app(app)
 
