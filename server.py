@@ -38,21 +38,59 @@ def user_list():
 def register():
     """Add new user to Users database."""
 
-    email = request.form.get('email')
+    input_email = request.form.get('email')
     password = request.form.get('password')
 
-    user = User(email=email,
-                password=password)
+    if db.session.query(User.email).filter(User.email == input_email).all():
+        return redirect('/users')
+        # redirect to user login page (maybe with flash message)
+    else:
+        user = User(email=input_email,
+                    password=password)
 
-    db.session.add(user)
-    db.session.commit()
+        db.session.add(user)
+        db.session.commit()
 
-    # import pdb; pdb.set_trace()
-    # user_id = user.user_id
+        return redirect('/')
 
-    return redirect('/')
 
-# @app.route('/users/<user_id>')
+@app.route('/login')
+def log_in():
+    """Show the user the login form."""
+
+    return render_template('log_in.html')
+
+
+@app.route('/login_user', methods=['POST'])
+def log_in_user():
+    """Handle login form."""
+
+    input_email = request.form.get('email')
+    password = request.form.get('password')
+
+    user = User.query.filter(User.email == input_email).one()
+    if user.password == password:
+        session['user_id'] = user.user_id
+        flash('You were successfully logged in!')
+        return redirect('/')
+
+    else:
+        flash('Incorrect password! Please try again.')
+        return redirect('/login')
+
+
+@app.route('/logout')
+def logout():
+    """Log user out of account."""
+
+    del session['user_id']
+
+    return 'You have successfully logged out.'
+
+
+#create a login route to show the login page and create a route to handle the login form
+# create a session so we can tell if a user is logged in
+# flash messages for login and logout
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
