@@ -27,7 +27,7 @@ def index():
 
 @app.route('/users')
 def user_list():
-    """SHow list of users."""
+    """Show list of users."""
 
     users = User.query.all()
 
@@ -79,13 +79,22 @@ def log_in_user():
         return redirect('/login')
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def logout():
     """Log user out of account."""
 
     del session['user_id']
 
     return 'You have successfully logged out.'
+
+
+@app.route('/movies')
+def movie_list():
+    """Show list of movies."""
+
+    movies = Movie.query.all()
+
+    return render_template('movie_list.html', movies=movies)
 
 
 #create a login route to show the login page and create a route to handle the login form

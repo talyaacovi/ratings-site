@@ -1,22 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
-    <script src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
 
     <h1>Ratings</h1>
-    <div id='logout-msg'></div>
+
+    <p id='logout-msg'></p>
 
     <h2>Movies</h2>
     <p><a href='/movies'>View all movies</a></p>
 
     <h2>Users</h2>
     <p><a href='/users'>View all users</a></p>
+    <div id='login'
+        {% if session.get('user_id') %}
+            hidden
+        {% endif %}>
 
-    {% if session.get('user_id') %}
-        <form id='logout-btn' action='/logout'>
-            <input type='submit' value='Logout'>
-        </form>
-
-    {% else %}
         <div id='reg-form'>
             <form action='/register' method='POST'>
                 Sign up here to start rating movies!<br>
@@ -26,17 +25,35 @@
             </form>
         </div>
         <a href='/login'>If already a user login here.</a>
+    </div>
+
+    <div id='logout'
+        {% if not session.get('user_id') %}
+            hidden
+        {% endif %}>
+
+
+        <button id='logout-btn'>Logout</button>
+    </div>
 
     <script>
 
         function logoutUser(result) {
-            $('#logout-msg').prepend(result);
+            $('#logout-msg').html(result);
+            $('#flash-msg').hide();
+            $('#login').show();
+            $('#logout').hide();
+
+            // document.querySelector('#logout-msg').innerHTML(result);
         }
 
-        $('#logout-btn').on('click', () => $.get('/logout', logoutUser));
+        // $('#logout-btn').on('click', () => $.get('/logout', logoutUser));
+        $('#logout-btn').click(function (evt) {
+            console.log('yo');
+            $.post('/logout', logoutUser);
+        });
 
     </script>
-    {% endif %}
 
 {% endblock %}
 
